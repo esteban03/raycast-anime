@@ -4,6 +4,13 @@ Discover anime with AniList GraphQL directly from Raycast.
 
 AniMe does not use platform-specific APIs, so it is intended to work across Raycast's available platforms.
 
+<img width="1000" height="625" alt="raycast-anime-1" src="https://github.com/user-attachments/assets/af128b43-a1e1-4695-8298-4bbf2b30cc6f" />
+<img width="1000" height="625" alt="raycast-anime-3" src="https://github.com/user-attachments/assets/b4450c5f-6411-41fe-a5a7-ceb4bf89a8fa" />
+<img width="1000" height="625" alt="raycast-anime-4" src="https://github.com/user-attachments/assets/fc08c128-e57f-461a-9ccc-2e6a0d9a74da" />
+
+
+
+
 ## First Run
 
 AniMe asks two quick questions on first use:
