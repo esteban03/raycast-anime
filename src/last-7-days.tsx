@@ -22,7 +22,11 @@ export default function Command() {
       return <Onboarding onComplete={revalidate} />;
     }
 
-    return <List isLoading searchBarPlaceholder="Loading preferences..." />;
+    return (
+      <List isLoading searchBarPlaceholder="Loading preferences...">
+        <List.EmptyView title="Loading Preferences..." />
+      </List>
+    );
   }
 
   if (preferences.preferredView === "gallery") {
@@ -34,14 +38,44 @@ export default function Command() {
         aspectRatio="2/3"
         fit={Grid.Fit.Fill}
       >
-        {sections.map((section) => (
-          <Grid.Section
+        {isLoading && sections.length === 0 ? (
+          <Grid.EmptyView title="Loading Last 7 Days..." description="Fetching recent episodes from AniList." />
+        ) : (
+          sections.map((section) => (
+            <Grid.Section
+              key={section.title}
+              title={section.title}
+              subtitle={formatSectionSubtitle(section.items.length)}
+            >
+              {section.items.map((episode) => (
+                <AnimeGridItem
+                  key={episode.id}
+                  anime={episode.media}
+                  preferences={preferences}
+                  onPreferencesReset={revalidate}
+                  subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
+                />
+              ))}
+            </Grid.Section>
+          ))
+        )}
+      </Grid>
+    );
+  }
+
+  return (
+    <List isLoading={isLoading || isLoadingPreferences} searchBarPlaceholder="Filter episodes from the last 7 days...">
+      {isLoading && sections.length === 0 ? (
+        <List.EmptyView title="Loading Last 7 Days..." description="Fetching recent episodes from AniList." />
+      ) : (
+        sections.map((section) => (
+          <List.Section
             key={section.title}
             title={section.title}
             subtitle={formatSectionSubtitle(section.items.length)}
           >
             {section.items.map((episode) => (
-              <AnimeGridItem
+              <AnimeListItem
                 key={episode.id}
                 anime={episode.media}
                 preferences={preferences}
@@ -49,27 +83,9 @@ export default function Command() {
                 subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
               />
             ))}
-          </Grid.Section>
-        ))}
-      </Grid>
-    );
-  }
-
-  return (
-    <List isLoading={isLoading || isLoadingPreferences} searchBarPlaceholder="Filter episodes from the last 7 days...">
-      {sections.map((section) => (
-        <List.Section key={section.title} title={section.title} subtitle={formatSectionSubtitle(section.items.length)}>
-          {section.items.map((episode) => (
-            <AnimeListItem
-              key={episode.id}
-              anime={episode.media}
-              preferences={preferences}
-              onPreferencesReset={revalidate}
-              subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
-            />
-          ))}
-        </List.Section>
-      ))}
+          </List.Section>
+        ))
+      )}
     </List>
   );
 }

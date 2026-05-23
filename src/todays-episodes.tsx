@@ -15,7 +15,11 @@ export default function Command() {
       return <Onboarding onComplete={revalidate} />;
     }
 
-    return <List isLoading searchBarPlaceholder="Loading preferences..." />;
+    return (
+      <List isLoading searchBarPlaceholder="Loading preferences...">
+        <List.EmptyView title="Loading Preferences..." />
+      </List>
+    );
   }
 
   if (preferences?.preferredView === "gallery") {
@@ -27,30 +31,41 @@ export default function Command() {
         aspectRatio="2/3"
         fit={Grid.Fit.Fill}
       >
-        {data.map((episode) => (
-          <AnimeGridItem
-            key={episode.id}
-            anime={episode.media}
-            preferences={preferences}
-            onPreferencesReset={revalidate}
-            subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
+        {isLoading && data.length === 0 ? (
+          <Grid.EmptyView
+            title="Loading Today's Episodes..."
+            description="Fetching the airing schedule from AniList."
           />
-        ))}
+        ) : (
+          data.map((episode) => (
+            <AnimeGridItem
+              key={episode.id}
+              anime={episode.media}
+              preferences={preferences}
+              onPreferencesReset={revalidate}
+              subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
+            />
+          ))
+        )}
       </Grid>
     );
   }
 
   return (
     <List isLoading={isLoading || isLoadingPreferences} searchBarPlaceholder="Filter today's episodes...">
-      {data.map((episode) => (
-        <AnimeListItem
-          key={episode.id}
-          anime={episode.media}
-          preferences={preferences}
-          onPreferencesReset={revalidate}
-          subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
-        />
-      ))}
+      {isLoading && data.length === 0 ? (
+        <List.EmptyView title="Loading Today's Episodes..." description="Fetching the airing schedule from AniList." />
+      ) : (
+        data.map((episode) => (
+          <AnimeListItem
+            key={episode.id}
+            anime={episode.media}
+            preferences={preferences}
+            onPreferencesReset={revalidate}
+            subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
+          />
+        ))
+      )}
     </List>
   );
 }

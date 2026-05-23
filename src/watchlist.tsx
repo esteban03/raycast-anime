@@ -18,7 +18,11 @@ export default function Command() {
       return <Onboarding onComplete={revalidatePreferences} />;
     }
 
-    return <List isLoading searchBarPlaceholder="Loading preferences..." />;
+    return (
+      <List isLoading searchBarPlaceholder="Loading preferences...">
+        <List.EmptyView title="Loading Preferences..." />
+      </List>
+    );
   }
 
   if (preferences?.preferredView === "gallery") {
@@ -30,7 +34,9 @@ export default function Command() {
         aspectRatio="2/3"
         fit={Grid.Fit.Fill}
       >
-        {data.length === 0 ? (
+        {isLoading && data.length === 0 ? (
+          <Grid.EmptyView title="Loading Watchlist..." />
+        ) : data.length === 0 ? (
           <Grid.EmptyView
             title="Your Watchlist Is Empty"
             description="Save anime from Search Anime or Current Season."
@@ -53,7 +59,9 @@ export default function Command() {
 
   return (
     <List isLoading={isLoading || isLoadingPreferences} searchBarPlaceholder="Filter watchlist...">
-      {data.length === 0 ? (
+      {isLoading && data.length === 0 ? (
+        <List.EmptyView title="Loading Watchlist..." />
+      ) : data.length === 0 ? (
         <List.EmptyView title="Your Watchlist Is Empty" description="Save anime from Search Anime or Current Season." />
       ) : (
         data.map((anime) => (

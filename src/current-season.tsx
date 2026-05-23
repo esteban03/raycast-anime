@@ -26,7 +26,11 @@ export default function Command() {
       return <Onboarding onComplete={revalidate} />;
     }
 
-    return <List isLoading searchBarPlaceholder="Loading preferences..." />;
+    return (
+      <List isLoading searchBarPlaceholder="Loading preferences...">
+        <List.EmptyView title="Loading Preferences..." />
+      </List>
+    );
   }
 
   if (preferences?.preferredView === "gallery") {
@@ -39,25 +43,29 @@ export default function Command() {
         aspectRatio="2/3"
         fit={Grid.Fit.Fill}
       >
-        {sections.map((section) => (
-          <Grid.Section
-            key={section.title}
-            title={formatSectionTitle(section.title)}
-            subtitle={formatSectionSubtitle(section.items.length)}
-          >
-            {section.items.map((anime) => (
-              <AnimeGridItem
-                key={anime.id}
-                anime={anime}
-                preferences={preferences}
-                onPreferencesReset={revalidate}
-                subtitle={
-                  anime.nextAiringEpisode ? formatAiringClock(anime.nextAiringEpisode.airingAt) : "Schedule Unknown"
-                }
-              />
-            ))}
-          </Grid.Section>
-        ))}
+        {isLoading && sections.length === 0 ? (
+          <Grid.EmptyView title="Loading Current Season..." description="Fetching airing anime from AniList." />
+        ) : (
+          sections.map((section) => (
+            <Grid.Section
+              key={section.title}
+              title={formatSectionTitle(section.title)}
+              subtitle={formatSectionSubtitle(section.items.length)}
+            >
+              {section.items.map((anime) => (
+                <AnimeGridItem
+                  key={anime.id}
+                  anime={anime}
+                  preferences={preferences}
+                  onPreferencesReset={revalidate}
+                  subtitle={
+                    anime.nextAiringEpisode ? formatAiringClock(anime.nextAiringEpisode.airingAt) : "Schedule Unknown"
+                  }
+                />
+              ))}
+            </Grid.Section>
+          ))
+        )}
       </Grid>
     );
   }
@@ -68,25 +76,29 @@ export default function Command() {
       searchBarPlaceholder={`Filter ${season.toLowerCase()} ${year}...`}
       searchBarAccessory={<ListFilterDropdown value={filter} onChange={setFilter} />}
     >
-      {sections.map((section) => (
-        <List.Section
-          key={section.title}
-          title={formatSectionTitle(section.title)}
-          subtitle={formatSectionSubtitle(section.items.length)}
-        >
-          {section.items.map((anime) => (
-            <AnimeListItem
-              key={anime.id}
-              anime={anime}
-              preferences={preferences}
-              onPreferencesReset={revalidate}
-              subtitle={
-                anime.nextAiringEpisode ? `Airs at ${formatAiringClock(anime.nextAiringEpisode.airingAt)}` : undefined
-              }
-            />
-          ))}
-        </List.Section>
-      ))}
+      {isLoading && sections.length === 0 ? (
+        <List.EmptyView title="Loading Current Season..." description="Fetching airing anime from AniList." />
+      ) : (
+        sections.map((section) => (
+          <List.Section
+            key={section.title}
+            title={formatSectionTitle(section.title)}
+            subtitle={formatSectionSubtitle(section.items.length)}
+          >
+            {section.items.map((anime) => (
+              <AnimeListItem
+                key={anime.id}
+                anime={anime}
+                preferences={preferences}
+                onPreferencesReset={revalidate}
+                subtitle={
+                  anime.nextAiringEpisode ? `Airs at ${formatAiringClock(anime.nextAiringEpisode.airingAt)}` : undefined
+                }
+              />
+            ))}
+          </List.Section>
+        ))
+      )}
     </List>
   );
 }

@@ -21,7 +21,11 @@ export default function Command() {
       return <Onboarding onComplete={revalidate} />;
     }
 
-    return <List isLoading searchBarPlaceholder="Loading preferences..." />;
+    return (
+      <List isLoading searchBarPlaceholder="Loading preferences...">
+        <List.EmptyView title="Loading Preferences..." />
+      </List>
+    );
   }
 
   if (preferences?.preferredView === "gallery") {
@@ -36,7 +40,9 @@ export default function Command() {
         aspectRatio="2/3"
         fit={Grid.Fit.Fill}
       >
-        {query.length === 0 ? (
+        {isLoading && filteredAnime.length === 0 ? (
+          <Grid.EmptyView title="Loading Anime..." description="Fetching results from AniList." />
+        ) : query.length === 0 ? (
           <Grid.EmptyView title="Search for Anime" description="Type a title to query AniList." />
         ) : (
           filteredAnime.map((anime) => (
@@ -55,7 +61,9 @@ export default function Command() {
       searchBarAccessory={<ListFilterDropdown value={filter} onChange={setFilter} />}
       throttle
     >
-      {query.length === 0 ? (
+      {isLoading && filteredAnime.length === 0 ? (
+        <List.EmptyView title="Loading Anime..." description="Fetching results from AniList." />
+      ) : query.length === 0 ? (
         <List.EmptyView title="Search for Anime" description="Type a title to query AniList." />
       ) : (
         filteredAnime.map((anime) => (
