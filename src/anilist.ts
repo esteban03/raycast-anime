@@ -109,10 +109,16 @@ async function requestAniList<T>(query: string, variables: Record<string, unknow
     body: JSON.stringify({ query, variables }),
   });
 
-  const json = (await response.json()) as GraphQLResponse<T>;
+  let json: GraphQLResponse<T> | undefined;
+
+  try {
+    json = (await response.json()) as GraphQLResponse<T>;
+  } catch {
+    json = undefined;
+  }
 
   if (!response.ok || json.errors?.length) {
-    throw new Error(json.errors?.[0]?.message ?? `AniList request failed with status ${response.status}`);
+    throw new Error(json?.errors?.[0]?.message ?? getAniListErrorMessage(response.status));
   }
 
   if (!json.data) {
@@ -120,6 +126,18 @@ async function requestAniList<T>(query: string, variables: Record<string, unknow
   }
 
   return json.data;
+}
+
+function getAniListErrorMessage(status: number) {
+  if (status >= 500) {
+    return "AniList is temporarily unavailable. Try again in a moment.";
+  }
+
+  if (status === 429) {
+    return "AniList rate limit reached. Try again in a moment.";
+  }
+
+  return `AniList request failed with status ${status}`;
 }
 
 export async function searchAnime(search: string) {
@@ -196,14 +214,42 @@ export function hasCrunchyrollLink(anime: Anime) {
   return Boolean(getCrunchyrollLink(anime));
 }
 
+export const STREAMING_PLATFORMS = [
+  { value: "crunchyroll", title: "Crunchyroll", matchers: ["crunchyroll"] },
+  { value: "netflix", title: "Netflix", matchers: ["netflix"] },
+  { value: "disney", title: "Disney+", matchers: ["disney"] },
+  { value: "hulu", title: "Hulu", matchers: ["hulu"] },
+  { value: "hidive", title: "HIDIVE", matchers: ["hidive"] },
+  { value: "prime-video", title: "Prime Video", matchers: ["amazon", "prime video"] },
+] as const;
+
+export type StreamingPlatformFilter = "all" | (typeof STREAMING_PLATFORMS)[number]["value"];
+
 export function getStreamingLinks(anime: Anime) {
   return (
     anime.externalLinks?.filter((link) =>
-      ["crunchyroll", "netflix", "hulu", "disney", "hidive", "amazon", "prime video"].some((site) =>
-        link.site.toLowerCase().includes(site),
+      STREAMING_PLATFORMS.some((platform) =>
+        platform.matchers.some((matcher) => link.site.toLowerCase().includes(matcher)),
       ),
     ) ?? []
   );
+}
+
+export function hasStreamingPlatform(anime: Anime, platformFilter: StreamingPlatformFilter) {
+  if (platformFilter === "all") return true;
+
+  const platform = STREAMING_PLATFORMS.find((item) => item.value === platformFilter);
+  if (!platform) return true;
+
+  return Boolean(
+    anime.externalLinks?.some((link) =>
+      platform.matchers.some((matcher) => link.site.toLowerCase().includes(matcher) && link.url),
+    ),
+  );
+}
+
+export function filterAnimeByStreamingPlatform<T extends Anime>(anime: T[], platformFilter: StreamingPlatformFilter) {
+  return anime.filter((item) => hasStreamingPlatform(item, platformFilter));
 }
 
 export function getEpisodeProgress(anime: Anime) {

@@ -1,5 +1,6 @@
 import { Grid, List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
+import { useState } from "react";
 
 import {
   AiringEpisode,
@@ -7,15 +8,24 @@ import {
   formatAiringDay,
   getAiringEpisodes,
   getLastSevenDaysTimestamps,
+  hasStreamingPlatform,
+  StreamingPlatformFilter,
 } from "./anilist";
 import { AnimeGridItem, AnimeListItem } from "./anime-components";
+import { ErrorView } from "./error-view";
 import { getAnimePreferences, Onboarding } from "./preferences";
+import { GridStreamingFilterDropdown, ListStreamingFilterDropdown } from "./streaming-filter";
 
 export default function Command() {
+  const [filter, setFilter] = useState<StreamingPlatformFilter>("all");
   const { startTimestamp, endTimestamp } = getLastSevenDaysTimestamps();
-  const { data = [], isLoading } = useCachedPromise(getAiringEpisodes, [startTimestamp, endTimestamp]);
+  const { data = [], error, isLoading, revalidate: retryEpisodes } = useCachedPromise(getAiringEpisodes, [
+    startTimestamp,
+    endTimestamp,
+  ]);
   const { data: preferences, isLoading: isLoadingPreferences, revalidate } = useCachedPromise(getAnimePreferences);
-  const sections = groupByAiringDay(data);
+  const filteredEpisodes = data.filter((episode) => hasStreamingPlatform(episode.media, filter));
+  const sections = groupByAiringDay(filteredEpisodes);
 
   if (!preferences) {
     if (!isLoadingPreferences) {
@@ -34,11 +44,14 @@ export default function Command() {
       <Grid
         isLoading={isLoading || isLoadingPreferences}
         searchBarPlaceholder="Filter episodes from the last 7 days..."
+        searchBarAccessory={<GridStreamingFilterDropdown value={filter} onChange={setFilter} />}
         columns={5}
         aspectRatio="2/3"
         fit={Grid.Fit.Fill}
       >
-        {isLoading && sections.length === 0 ? (
+        {error ? (
+          <ErrorView isGallery description={error.message} onRetry={retryEpisodes} title="Could Not Load Episodes" />
+        ) : isLoading && sections.length === 0 ? (
           <Grid.EmptyView title="Loading Last 7 Days..." description="Fetching recent episodes from AniList." />
         ) : (
           sections.map((section) => (
@@ -64,8 +77,14 @@ export default function Command() {
   }
 
   return (
-    <List isLoading={isLoading || isLoadingPreferences} searchBarPlaceholder="Filter episodes from the last 7 days...">
-      {isLoading && sections.length === 0 ? (
+    <List
+      isLoading={isLoading || isLoadingPreferences}
+      searchBarPlaceholder="Filter episodes from the last 7 days..."
+      searchBarAccessory={<ListStreamingFilterDropdown value={filter} onChange={setFilter} />}
+    >
+      {error ? (
+        <ErrorView description={error.message} onRetry={retryEpisodes} title="Could Not Load Episodes" />
+      ) : isLoading && sections.length === 0 ? (
         <List.EmptyView title="Loading Last 7 Days..." description="Fetching recent episodes from AniList." />
       ) : (
         sections.map((section) => (

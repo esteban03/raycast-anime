@@ -15,11 +15,11 @@ If Crunchyroll is enabled, AniMe opens Crunchyroll first when AniList provides a
 
 ## Commands
 
-- **Search Anime**: Search anime by title, filter optionally to Crunchyroll, and view details, cover art, airing status, episode counts, release date, next episode, studios, genres, score, and external links.
-- **Current Season**: Browse anime currently airing in the local season and year, grouped by the weekday of their next episode.
-- **Today's Episodes**: See episodes airing today using AniList airing schedules and local day timestamps.
-- **Last 7 Days**: See episodes that aired during the last seven days, grouped by air date.
-- **Watchlist**: View and remove anime saved locally with Raycast LocalStorage.
+- **Search Anime**: Search anime by title, filter by streaming platform, and view details, cover art, airing status, episode counts, release date, next episode, studios, genres, score, and external links.
+- **Current Season**: Browse anime currently airing in the local season and year, grouped by the weekday of their next episode, with streaming platform filters.
+- **Today's Episodes**: See episodes airing today using AniList airing schedules and local day timestamps, with streaming platform filters.
+- **Last 7 Days**: See episodes that aired during the last seven days, grouped by air date, with streaming platform filters.
+- **Watchlist**: View, filter, and remove anime saved locally with Raycast LocalStorage.
 
 Every anime item includes streaming actions when AniList provides external links, plus a feedback action addressed to `esteban@damascuss.io`.
 

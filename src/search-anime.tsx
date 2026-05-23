@@ -2,19 +2,20 @@ import { Grid, List } from "@raycast/api";
 import { useCachedPromise, usePromise } from "@raycast/utils";
 import { useState } from "react";
 
-import { hasCrunchyrollLink, searchAnime } from "./anilist";
+import { filterAnimeByStreamingPlatform, searchAnime, StreamingPlatformFilter } from "./anilist";
 import { AnimeGridItem, AnimeListItem } from "./anime-components";
 import { getAnimePreferences, Onboarding } from "./preferences";
+import { GridStreamingFilterDropdown, ListStreamingFilterDropdown } from "./streaming-filter";
 
 export default function Command() {
   const [searchText, setSearchText] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState<StreamingPlatformFilter>("all");
   const { data: preferences, isLoading: isLoadingPreferences, revalidate } = useCachedPromise(getAnimePreferences);
   const query = searchText.trim();
   const { data = [], isLoading } = usePromise(searchAnime, [query], {
     execute: query.length > 0,
   });
-  const filteredAnime = filter === "crunchyroll" ? data.filter(hasCrunchyrollLink) : data;
+  const filteredAnime = filterAnimeByStreamingPlatform(data, filter);
 
   if (!preferences) {
     if (!isLoadingPreferences) {
@@ -34,7 +35,7 @@ export default function Command() {
         isLoading={isLoading || isLoadingPreferences}
         searchBarPlaceholder="Search anime on AniList..."
         onSearchTextChange={setSearchText}
-        searchBarAccessory={<GridFilterDropdown value={filter} onChange={setFilter} />}
+        searchBarAccessory={<GridStreamingFilterDropdown value={filter} onChange={setFilter} />}
         throttle
         columns={5}
         aspectRatio="2/3"
@@ -58,7 +59,7 @@ export default function Command() {
       isLoading={isLoading || isLoadingPreferences}
       searchBarPlaceholder="Search anime on AniList..."
       onSearchTextChange={setSearchText}
-      searchBarAccessory={<ListFilterDropdown value={filter} onChange={setFilter} />}
+      searchBarAccessory={<ListStreamingFilterDropdown value={filter} onChange={setFilter} />}
       throttle
     >
       {isLoading && filteredAnime.length === 0 ? (
@@ -71,23 +72,5 @@ export default function Command() {
         ))
       )}
     </List>
-  );
-}
-
-function ListFilterDropdown({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return (
-    <List.Dropdown tooltip="Streaming Filter" value={value} onChange={onChange}>
-      <List.Dropdown.Item title="All Anime" value="all" />
-      <List.Dropdown.Item title="Only On Crunchyroll" value="crunchyroll" />
-    </List.Dropdown>
-  );
-}
-
-function GridFilterDropdown({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return (
-    <Grid.Dropdown tooltip="Streaming Filter" value={value} onChange={onChange}>
-      <Grid.Dropdown.Item title="All Anime" value="all" />
-      <Grid.Dropdown.Item title="Only On Crunchyroll" value="crunchyroll" />
-    </Grid.Dropdown>
   );
 }

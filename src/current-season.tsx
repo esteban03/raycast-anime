@@ -6,19 +6,21 @@ import {
   Anime,
   formatAiringClock,
   formatWeekday,
+  filterAnimeByStreamingPlatform,
   getCurrentAnimeSeason,
   getCurrentSeasonAnime,
-  hasCrunchyrollLink,
+  StreamingPlatformFilter,
 } from "./anilist";
 import { AnimeGridItem, AnimeListItem } from "./anime-components";
 import { getAnimePreferences, Onboarding } from "./preferences";
+import { GridStreamingFilterDropdown, ListStreamingFilterDropdown } from "./streaming-filter";
 
 export default function Command() {
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState<StreamingPlatformFilter>("all");
   const { season, year } = getCurrentAnimeSeason();
   const { data = [], isLoading } = useCachedPromise(getCurrentSeasonAnime, [season, year]);
   const { data: preferences, isLoading: isLoadingPreferences, revalidate } = useCachedPromise(getAnimePreferences);
-  const filteredAnime = filter === "crunchyroll" ? data.filter(hasCrunchyrollLink) : data;
+  const filteredAnime = filterAnimeByStreamingPlatform(data, filter);
   const sections = groupByAiringDay(filteredAnime);
 
   if (!preferences) {
@@ -38,7 +40,7 @@ export default function Command() {
       <Grid
         isLoading={isLoading || isLoadingPreferences}
         searchBarPlaceholder={`Filter ${season.toLowerCase()} ${year}...`}
-        searchBarAccessory={<GridFilterDropdown value={filter} onChange={setFilter} />}
+        searchBarAccessory={<GridStreamingFilterDropdown value={filter} onChange={setFilter} />}
         columns={5}
         aspectRatio="2/3"
         fit={Grid.Fit.Fill}
@@ -74,7 +76,7 @@ export default function Command() {
     <List
       isLoading={isLoading || isLoadingPreferences}
       searchBarPlaceholder={`Filter ${season.toLowerCase()} ${year}...`}
-      searchBarAccessory={<ListFilterDropdown value={filter} onChange={setFilter} />}
+      searchBarAccessory={<ListStreamingFilterDropdown value={filter} onChange={setFilter} />}
     >
       {isLoading && sections.length === 0 ? (
         <List.EmptyView title="Loading Current Season..." description="Fetching airing anime from AniList." />
@@ -125,22 +127,4 @@ function groupByAiringDay(anime: Anime[]) {
   }
 
   return Array.from(sections.entries()).map(([title, items]) => ({ title, items }));
-}
-
-function ListFilterDropdown({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return (
-    <List.Dropdown tooltip="Streaming Filter" value={value} onChange={onChange}>
-      <List.Dropdown.Item title="All Anime" value="all" />
-      <List.Dropdown.Item title="Only On Crunchyroll" value="crunchyroll" />
-    </List.Dropdown>
-  );
-}
-
-function GridFilterDropdown({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return (
-    <Grid.Dropdown tooltip="Streaming Filter" value={value} onChange={onChange}>
-      <Grid.Dropdown.Item title="All Anime" value="all" />
-      <Grid.Dropdown.Item title="Only On Crunchyroll" value="crunchyroll" />
-    </Grid.Dropdown>
-  );
 }

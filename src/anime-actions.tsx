@@ -45,19 +45,15 @@ export function AnimeActions({
           target={<AnimeDetail anime={anime} preferences={preferences} />}
         />
       ) : null}
-      {shouldPreferCrunchyroll && crunchyrollUrl ? (
-        <Action.OpenInBrowser title="Open in Crunchyroll" url={crunchyrollUrl} />
-      ) : primaryUrl ? (
-        <Action.OpenInBrowser title={primaryTitle} url={primaryUrl} />
-      ) : null}
+      {primaryUrl ? <Action.OpenInBrowser key={`primary-${primaryUrl}`} title={primaryTitle} url={primaryUrl} /> : null}
       {anime.siteUrl && primaryUrl !== anime.siteUrl ? (
-        <Action.OpenInBrowser title="Open in AniList" url={anime.siteUrl} />
+        <Action.OpenInBrowser key={`anilist-${anime.siteUrl}`} title="Open in AniList" url={anime.siteUrl} />
       ) : null}
       {streamingLinks
         .filter((link) => link.url !== primaryUrl)
         .map((link) => (
           <Action.OpenInBrowser
-            key={`${link.site}-${link.url}`}
+            key={`streaming-${link.site}-${link.url}`}
             title={buildOpenActionTitle(link.site)}
             url={link.url}
             icon={link.icon}

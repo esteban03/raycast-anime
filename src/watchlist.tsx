@@ -1,17 +1,22 @@
 import { Grid, List } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
+import { useState } from "react";
 
+import { filterAnimeByStreamingPlatform, StreamingPlatformFilter } from "./anilist";
 import { AnimeGridItem, AnimeListItem } from "./anime-components";
 import { getAnimePreferences, Onboarding } from "./preferences";
+import { GridStreamingFilterDropdown, ListStreamingFilterDropdown } from "./streaming-filter";
 import { getWatchlist } from "./watchlist-storage";
 
 export default function Command() {
+  const [filter, setFilter] = useState<StreamingPlatformFilter>("all");
   const { data = [], isLoading, revalidate } = useCachedPromise(getWatchlist);
   const {
     data: preferences,
     isLoading: isLoadingPreferences,
     revalidate: revalidatePreferences,
   } = useCachedPromise(getAnimePreferences);
+  const filteredAnime = filterAnimeByStreamingPlatform(data, filter);
 
   if (!preferences) {
     if (!isLoadingPreferences) {
@@ -30,19 +35,20 @@ export default function Command() {
       <Grid
         isLoading={isLoading || isLoadingPreferences}
         searchBarPlaceholder="Filter watchlist..."
+        searchBarAccessory={<GridStreamingFilterDropdown value={filter} onChange={setFilter} />}
         columns={5}
         aspectRatio="2/3"
         fit={Grid.Fit.Fill}
       >
-        {isLoading && data.length === 0 ? (
+        {isLoading && filteredAnime.length === 0 ? (
           <Grid.EmptyView title="Loading Watchlist..." />
-        ) : data.length === 0 ? (
+        ) : filteredAnime.length === 0 ? (
           <Grid.EmptyView
             title="Your Watchlist Is Empty"
             description="Save anime from Search Anime or Current Season."
           />
         ) : (
-          data.map((anime) => (
+          filteredAnime.map((anime) => (
             <AnimeGridItem
               key={anime.id}
               anime={anime}
@@ -58,13 +64,17 @@ export default function Command() {
   }
 
   return (
-    <List isLoading={isLoading || isLoadingPreferences} searchBarPlaceholder="Filter watchlist...">
-      {isLoading && data.length === 0 ? (
+    <List
+      isLoading={isLoading || isLoadingPreferences}
+      searchBarPlaceholder="Filter watchlist..."
+      searchBarAccessory={<ListStreamingFilterDropdown value={filter} onChange={setFilter} />}
+    >
+      {isLoading && filteredAnime.length === 0 ? (
         <List.EmptyView title="Loading Watchlist..." />
-      ) : data.length === 0 ? (
+      ) : filteredAnime.length === 0 ? (
         <List.EmptyView title="Your Watchlist Is Empty" description="Save anime from Search Anime or Current Season." />
       ) : (
-        data.map((anime) => (
+        filteredAnime.map((anime) => (
           <AnimeListItem
             key={anime.id}
             anime={anime}
