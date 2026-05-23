@@ -47,7 +47,7 @@ export default function Command() {
               key={anime.id}
               anime={anime}
               preferences={preferences}
-              onPreferencesReset={revalidatePreferences}
+              onPreferencesChange={revalidatePreferences}
               onWatchlistChange={revalidate}
               showRemoveFromWatchlist
             />
@@ -69,7 +69,7 @@ export default function Command() {
             key={anime.id}
             anime={anime}
             preferences={preferences}
-            onPreferencesReset={revalidatePreferences}
+            onPreferencesChange={revalidatePreferences}
             onWatchlistChange={revalidate}
             showRemoveFromWatchlist
           />

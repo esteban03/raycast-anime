@@ -9,12 +9,12 @@ import {
   hasCrunchyrollLink,
 } from "./anilist";
 import { AnimeActions } from "./anime-actions";
-import { AnimePreferences, resetAnimePreferences } from "./preferences";
+import { AnimePreferences, Onboarding } from "./preferences";
 
 type AnimeItemProps = {
   anime: Anime;
   preferences: AnimePreferences;
-  onPreferencesReset: () => void;
+  onPreferencesChange: () => void;
   onWatchlistChange?: () => void;
   showRemoveFromWatchlist?: boolean;
   subtitle?: string;
@@ -53,7 +53,7 @@ export function AnimeGridItem(props: AnimeItemProps) {
 function AnimeActionsWithGlobalActions({
   anime,
   preferences,
-  onPreferencesReset,
+  onPreferencesChange,
   onWatchlistChange,
   showRemoveFromWatchlist,
 }: AnimeItemProps) {
@@ -65,13 +65,10 @@ function AnimeActionsWithGlobalActions({
       showRemoveFromWatchlist={showRemoveFromWatchlist}
       extraActions={
         <>
-          <Action
+          <Action.Push
             title="Change Preferences"
             icon={Icon.Gear}
-            onAction={async () => {
-              await resetAnimePreferences();
-              onPreferencesReset();
-            }}
+            target={<Onboarding defaultPreferences={preferences} onComplete={onPreferencesChange} isEditing />}
           />
           <Action.OpenInBrowser
             title="Send Feedback"

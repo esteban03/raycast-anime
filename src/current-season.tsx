@@ -57,7 +57,7 @@ export default function Command() {
                   key={anime.id}
                   anime={anime}
                   preferences={preferences}
-                  onPreferencesReset={revalidate}
+                  onPreferencesChange={revalidate}
                   subtitle={
                     anime.nextAiringEpisode ? formatAiringClock(anime.nextAiringEpisode.airingAt) : "Schedule Unknown"
                   }
@@ -90,7 +90,7 @@ export default function Command() {
                 key={anime.id}
                 anime={anime}
                 preferences={preferences}
-                onPreferencesReset={revalidate}
+                onPreferencesChange={revalidate}
                 subtitle={
                   anime.nextAiringEpisode ? `Airs at ${formatAiringClock(anime.nextAiringEpisode.airingAt)}` : undefined
                 }

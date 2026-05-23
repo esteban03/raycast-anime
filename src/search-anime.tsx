@@ -46,7 +46,7 @@ export default function Command() {
           <Grid.EmptyView title="Search for Anime" description="Type a title to query AniList." />
         ) : (
           filteredAnime.map((anime) => (
-            <AnimeGridItem key={anime.id} anime={anime} preferences={preferences} onPreferencesReset={revalidate} />
+            <AnimeGridItem key={anime.id} anime={anime} preferences={preferences} onPreferencesChange={revalidate} />
           ))
         )}
       </Grid>
@@ -67,7 +67,7 @@ export default function Command() {
         <List.EmptyView title="Search for Anime" description="Type a title to query AniList." />
       ) : (
         filteredAnime.map((anime) => (
-          <AnimeListItem key={anime.id} anime={anime} preferences={preferences} onPreferencesReset={revalidate} />
+          <AnimeListItem key={anime.id} anime={anime} preferences={preferences} onPreferencesChange={revalidate} />
         ))
       )}
     </List>

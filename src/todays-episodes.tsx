@@ -42,7 +42,7 @@ export default function Command() {
               key={episode.id}
               anime={episode.media}
               preferences={preferences}
-              onPreferencesReset={revalidate}
+              onPreferencesChange={revalidate}
               subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
             />
           ))
@@ -61,7 +61,7 @@ export default function Command() {
             key={episode.id}
             anime={episode.media}
             preferences={preferences}
-            onPreferencesReset={revalidate}
+            onPreferencesChange={revalidate}
             subtitle={`Episode ${episode.episode} · ${formatAiringClock(episode.airingAt)}`}
           />
         ))

@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Form, LocalStorage } from "@raycast/api";
+import { Action, ActionPanel, Form, LocalStorage, popToRoot } from "@raycast/api";
 
 const PREFERENCES_KEY = "anime-preferences";
 
@@ -23,13 +23,10 @@ export async function saveAnimePreferences(preferences: AnimePreferences) {
   await LocalStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences));
 }
 
-export async function resetAnimePreferences() {
-  await LocalStorage.removeItem(PREFERENCES_KEY);
-}
-
 type OnboardingProps = {
   onComplete: () => void;
   defaultPreferences?: AnimePreferences;
+  isEditing?: boolean;
 };
 
 type OnboardingValues = {
@@ -37,10 +34,14 @@ type OnboardingValues = {
   preferredView: ViewMode;
 };
 
-export function Onboarding({ onComplete, defaultPreferences = DEFAULT_PREFERENCES }: OnboardingProps) {
+export function Onboarding({
+  onComplete,
+  defaultPreferences = DEFAULT_PREFERENCES,
+  isEditing = false,
+}: OnboardingProps) {
   return (
     <Form
-      navigationTitle="Set Up AniMe"
+      navigationTitle={isEditing ? "AniMe Preferences" : "Set Up AniMe"}
       actions={
         <ActionPanel>
           <Action.SubmitForm
@@ -51,6 +52,9 @@ export function Onboarding({ onComplete, defaultPreferences = DEFAULT_PREFERENCE
                 preferredView: values.preferredView,
               });
               onComplete();
+              if (isEditing) {
+                await popToRoot();
+              }
             }}
           />
         </ActionPanel>
