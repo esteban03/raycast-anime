@@ -19,6 +19,12 @@ export type ExternalLink = {
   color?: string;
 };
 
+export type Trailer = {
+  id?: string;
+  site?: string;
+  thumbnail?: string;
+};
+
 export type Anime = {
   id: number;
   title: AnimeTitle;
@@ -43,6 +49,7 @@ export type Anime = {
       name: string;
     }[];
   };
+  trailer?: Trailer;
   externalLinks?: ExternalLink[];
 };
 
@@ -91,6 +98,11 @@ const MEDIA_FIELDS = `
       name
     }
   }
+  trailer {
+    id
+    site
+    thumbnail
+  }
   externalLinks {
     site
     url
@@ -117,11 +129,11 @@ async function requestAniList<T>(query: string, variables: Record<string, unknow
     json = undefined;
   }
 
-  if (!response.ok || json.errors?.length) {
+  if (!response.ok || json?.errors?.length) {
     throw new Error(json?.errors?.[0]?.message ?? getAniListErrorMessage(response.status));
   }
 
-  if (!json.data) {
+  if (!json?.data) {
     throw new Error("AniList returned an empty response");
   }
 
@@ -233,6 +245,16 @@ export function getStreamingLinks(anime: Anime) {
       ),
     ) ?? []
   );
+}
+
+export function getTrailerUrl(anime: Anime) {
+  if (!anime.trailer?.id || !anime.trailer.site) return undefined;
+
+  const site = anime.trailer.site.toLowerCase();
+  if (site === "youtube") return `https://www.youtube.com/watch?v=${anime.trailer.id}`;
+  if (site === "dailymotion") return `https://www.dailymotion.com/video/${anime.trailer.id}`;
+
+  return undefined;
 }
 
 export function hasStreamingPlatform(anime: Anime, platformFilter: StreamingPlatformFilter) {

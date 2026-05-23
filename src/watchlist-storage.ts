@@ -19,6 +19,7 @@ export type WatchlistAnime = Pick<
   | "siteUrl"
   | "nextAiringEpisode"
   | "studios"
+  | "trailer"
   | "externalLinks"
 >;
 

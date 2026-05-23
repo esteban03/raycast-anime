@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Detail, Icon, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Detail, Icon, open, showToast, Toast } from "@raycast/api";
 import { ReactNode } from "react";
 
 import {
@@ -9,6 +9,7 @@ import {
   getCrunchyrollLink,
   getEpisodeProgress,
   getStreamingLinks,
+  getTrailerUrl,
 } from "./anilist";
 import { AnimePreferences } from "./preferences";
 import { removeAnime, saveAnime } from "./watchlist-storage";
@@ -32,6 +33,7 @@ export function AnimeActions({
 }: AnimeActionsProps) {
   const crunchyrollUrl = getCrunchyrollLink(anime);
   const streamingLinks = getStreamingLinks(anime);
+  const trailerUrl = getTrailerUrl(anime);
   const shouldPreferCrunchyroll = preferences.prefersCrunchyroll && Boolean(crunchyrollUrl);
   const primaryUrl = shouldPreferCrunchyroll ? crunchyrollUrl : anime.siteUrl;
   const primaryTitle = shouldPreferCrunchyroll ? "Open In Crunchyroll" : "Open In AniList";
@@ -45,20 +47,23 @@ export function AnimeActions({
           target={<AnimeDetail anime={anime} preferences={preferences} />}
         />
       ) : null}
-      {primaryUrl ? <Action.OpenInBrowser key={`primary-${primaryUrl}`} title={primaryTitle} url={primaryUrl} /> : null}
+      {primaryUrl ? <OpenUrlAction key={`primary-${primaryUrl}`} title={primaryTitle} url={primaryUrl} /> : null}
       {anime.siteUrl && primaryUrl !== anime.siteUrl ? (
-        <Action.OpenInBrowser key={`anilist-${anime.siteUrl}`} title="Open in AniList" url={anime.siteUrl} />
+        <OpenUrlAction key={`anilist-${anime.siteUrl}`} title="Open In AniList" url={anime.siteUrl} />
       ) : null}
       {streamingLinks
         .filter((link) => link.url !== primaryUrl)
         .map((link) => (
-          <Action.OpenInBrowser
+          <OpenUrlAction
             key={`streaming-${link.site}-${link.url}`}
             title={buildOpenActionTitle(link.site)}
             url={link.url}
             icon={link.icon}
           />
         ))}
+      {trailerUrl ? (
+        <OpenUrlAction key={`trailer-${trailerUrl}`} title="Open Trailer" url={trailerUrl} icon={Icon.Play} />
+      ) : null}
       {showRemoveFromWatchlist ? (
         <Action
           title="Remove from Watchlist"
@@ -86,12 +91,17 @@ export function AnimeActions({
   );
 }
 
+function OpenUrlAction({ icon, title, url }: { icon?: string; title: string; url: string }) {
+  return <Action title={title} icon={icon} onAction={() => open(url)} />;
+}
+
 function buildOpenActionTitle(site: string) {
   return `Open In ${site}`;
 }
 
 function AnimeDetail({ anime, preferences }: { anime: Anime; preferences: AnimePreferences }) {
   const title = getAnimeTitle(anime);
+  const trailerUrl = getTrailerUrl(anime);
   const nextEpisode = anime.nextAiringEpisode
     ? `Episode ${anime.nextAiringEpisode.episode} - ${formatAiringTime(anime.nextAiringEpisode.airingAt)}`
     : "Unknown";
@@ -107,6 +117,7 @@ function AnimeDetail({ anime, preferences }: { anime: Anime; preferences: AnimeP
       ? `![${title}](${anime.coverImage.extraLarge || anime.coverImage.large})`
       : "",
     `# ${title}`,
+    trailerUrl && anime.trailer?.thumbnail ? `[![Trailer](${anime.trailer.thumbnail})](${trailerUrl})` : "",
     anime.description || "No description available.",
     anime.genres?.length ? `**Genres:** ${anime.genres.join(", ")}` : "",
     "## External Links",
@@ -126,6 +137,9 @@ function AnimeDetail({ anime, preferences }: { anime: Anime; preferences: AnimeP
           <Detail.Metadata.Label title="Episodes" text={getEpisodeProgress(anime)} />
           <Detail.Metadata.Label title="Next Episode" text={nextEpisode} />
           {anime.averageScore ? <Detail.Metadata.Label title="Score" text={`${anime.averageScore}%`} /> : null}
+          {trailerUrl ? (
+            <Detail.Metadata.Link title="Trailer" text={anime.trailer?.site ?? "Trailer"} target={trailerUrl} />
+          ) : null}
           {anime.studios?.nodes.length ? (
             <Detail.Metadata.Label title="Studio" text={anime.studios.nodes.map((studio) => studio.name).join(", ")} />
           ) : null}

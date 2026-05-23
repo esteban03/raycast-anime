@@ -17,10 +17,12 @@ import { GridStreamingFilterDropdown, ListStreamingFilterDropdown } from "./stre
 export default function Command() {
   const [filter, setFilter] = useState<StreamingPlatformFilter>("all");
   const { startTimestamp, endTimestamp } = getLocalDayTimestamps();
-  const { data = [], error, isLoading, revalidate: retryEpisodes } = useCachedPromise(getAiringEpisodes, [
-    startTimestamp,
-    endTimestamp,
-  ]);
+  const {
+    data = [],
+    error,
+    isLoading,
+    revalidate: retryEpisodes,
+  } = useCachedPromise(getAiringEpisodes, [startTimestamp, endTimestamp]);
   const { data: preferences, isLoading: isLoadingPreferences, revalidate } = useCachedPromise(getAnimePreferences);
   const filteredEpisodes = data.filter((episode) => hasStreamingPlatform(episode.media, filter));
 
