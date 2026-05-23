@@ -4,7 +4,7 @@
   "title": "AniMe",
   "description": "Discover anime, current season releases, today's episodes, and a local watchlist powered by AniList.",
   "icon": "icon.png",
-  "author": "estebansanchez",
+  "author": "esteban03",
   "license": "MIT",
   "categories": ["Fun"],
   "commands": [
