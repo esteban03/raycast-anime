@@ -48,6 +48,7 @@ export type Anime = {
 
 export type AiringEpisode = {
   id: number;
+  /** AniList returns airingAt as a Unix timestamp in seconds. */
   airingAt: number;
   episode: number;
   media: Anime;
@@ -249,6 +250,10 @@ export function getLastSevenDaysTimestamps(date = new Date()) {
   };
 }
 
+export function getLocalDateFromAniListTimestamp(timestamp: number) {
+  return new Date(timestamp * 1000);
+}
+
 export function formatAnimeDate(date?: AnimeDate) {
   if (!date?.year) return "Unknown";
 
@@ -259,7 +264,7 @@ export function formatAnimeDate(date?: AnimeDate) {
 
 export function formatAiringTime(timestamp?: number) {
   if (!timestamp) return "Unknown";
-  return new Date(timestamp * 1000).toLocaleString(undefined, {
+  return getLocalDateFromAniListTimestamp(timestamp).toLocaleString(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   });
@@ -267,7 +272,7 @@ export function formatAiringTime(timestamp?: number) {
 
 export function formatAiringClock(timestamp?: number) {
   if (!timestamp) return "Unknown";
-  return new Date(timestamp * 1000).toLocaleTimeString(undefined, {
+  return getLocalDateFromAniListTimestamp(timestamp).toLocaleTimeString(undefined, {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -275,12 +280,12 @@ export function formatAiringClock(timestamp?: number) {
 
 export function formatWeekday(timestamp?: number) {
   if (!timestamp) return "Schedule Unknown";
-  return new Date(timestamp * 1000).toLocaleDateString(undefined, { weekday: "long" });
+  return getLocalDateFromAniListTimestamp(timestamp).toLocaleDateString(undefined, { weekday: "long" });
 }
 
 export function formatAiringDay(timestamp?: number) {
   if (!timestamp) return "Unknown";
-  return new Date(timestamp * 1000).toLocaleDateString(undefined, {
+  return getLocalDateFromAniListTimestamp(timestamp).toLocaleDateString(undefined, {
     weekday: "long",
     month: "short",
     day: "numeric",

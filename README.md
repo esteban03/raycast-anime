@@ -2,12 +2,14 @@
 
 Discover anime with AniList GraphQL directly from Raycast.
 
+AniMe does not use platform-specific APIs, so it is intended to work across Raycast's available platforms.
+
 ## First Run
 
 AniMe asks two quick questions on first use:
 
 - Whether you use Crunchyroll.
-- Whether you prefer List or Gallery view.
+- Whether you prefer Gallery or List view. Gallery is the default and recommended option.
 
 If Crunchyroll is enabled, AniMe opens Crunchyroll first when AniList provides a matching streaming link. AniList remains the fallback.
 
@@ -20,3 +22,7 @@ If Crunchyroll is enabled, AniMe opens Crunchyroll first when AniList provides a
 - **Watchlist**: View and remove anime saved locally with Raycast LocalStorage.
 
 Every anime item includes streaming actions when AniList provides external links, plus a feedback action addressed to `esteban@damascuss.io`.
+
+## Time Zones
+
+AniList airing schedules return Unix timestamps. AniMe displays them using the machine's local time zone.

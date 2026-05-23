@@ -11,7 +11,7 @@ export type AnimePreferences = {
 
 const DEFAULT_PREFERENCES: AnimePreferences = {
   prefersCrunchyroll: false,
-  preferredView: "list",
+  preferredView: "gallery",
 };
 
 export async function getAnimePreferences() {
@@ -62,8 +62,8 @@ export function Onboarding({ onComplete, defaultPreferences = DEFAULT_PREFERENCE
         defaultValue={defaultPreferences.prefersCrunchyroll}
       />
       <Form.Dropdown id="preferredView" title="Preferred View" defaultValue={defaultPreferences.preferredView}>
+        <Form.Dropdown.Item value="gallery" title="Gallery (Recommended)" />
         <Form.Dropdown.Item value="list" title="List" />
-        <Form.Dropdown.Item value="gallery" title="Gallery" />
       </Form.Dropdown>
     </Form>
   );
